@@ -58,7 +58,7 @@ final class ViewModel: Machine<ViewModel.Resolver> {
         @Published var isOn = false
     }
 
-    final class Store: OutputType, StoreType {
+    final class Store: StoredOutputType {
         @Published var count: Int = 0
         @Published var isIncrementEnabled = false
         @Published var isDecrementEnabled = false

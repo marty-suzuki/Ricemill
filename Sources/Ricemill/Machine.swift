@@ -8,26 +8,40 @@
 
 import Combine
 
+/// Represents Output of Machine.
 public protocol OutputType {}
 
+/// Represents Input of Machine.
 public protocol InputType {}
 
-public protocol BindableInputType: InputType, ObservableObject {}
-
+/// Represents store retained by Machine.
 public protocol StoreType: ObservableObject {}
 
+/// Represents extra dependencies of Machine.
 public protocol ExtraType {}
 
+/// Represents Input of Machine has Biniding<Value>.
+/// - note: In SwiftUI case, this will be used.
+public protocol BindableInputType: InputType, ObservableObject {}
+
+/// Represents Store and Output of Machine.
+/// - note: In SwiftUI case, this will be used.
 public protocol StoredOutputType: OutputType, StoreType {}
 
+/// Represents definitions and implementations of Machine.
 public protocol ResolverType {
     associatedtype Input: InputType
     associatedtype Output: OutputType
     associatedtype Store: StoreType
     associatedtype Extra: ExtraType
+
+    /// Generates Output.
+    ///
+    /// - note: This method called once when a linked Machine is initialized.
     static func polish(input: Publishing<Input>, store: Store, extra: Extra) -> Polished<Output>
 }
 
+/// Makes possible to implement Unidirectional input / output.
 open class Machine<Resolver: ResolverType> {
 
     public let input: InputProxy<Resolver.Input>
@@ -66,6 +80,7 @@ extension Machine: ObservableObject where Resolver.Output == Resolver.Store {
         return _store.objectWillChange
     }
 
+    /// - note: When Resolver.Output equals Resolver.Store, this initializer is available.
     public convenience init(input: Resolver.Input, store: Resolver.Store, extra: Resolver.Extra) {
         let receivableInput = Publishing(input)
         let polished = Resolver.polish(input: receivableInput, store: store, extra: extra)

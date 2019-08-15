@@ -9,6 +9,8 @@
 import Combine
 import SwiftUI
 
+/// Limitates access level of Intput.
+/// - note: This returns only `AnyPublisher`s.
 @dynamicMemberLookup
 public final class Publishing<Input: InputType> {
 
@@ -25,6 +27,8 @@ public final class Publishing<Input: InputType> {
 
 extension Publishing where Input: BindableInputType {
 
+    /// Returns `Value` when Input is BindableInputType
+    /// - note: Assumed to be the difinition is @Published var string = "" for example.
     public subscript<Value>(dynamicMember keyPath: ReferenceWritableKeyPath<Input, Value>) -> Value {
         input[keyPath: keyPath]
     }

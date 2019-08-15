@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 
+/// Proxy of Combine.Subject
 public struct SubjectProxy<S: Subject> {
 
     internal let subject: S
@@ -37,6 +38,7 @@ extension SubjectProxy where S.Output == Void {
     }
 }
 
+/// Limitates access level of Input
 @dynamicMemberLookup
 public final class InputProxy<Input: InputType> {
 
@@ -53,16 +55,24 @@ public final class InputProxy<Input: InputType> {
 
 extension InputProxy where Input: BindableInputType {
 
+    /// Returns `Binding<Subject>` when Input is BindableInputType
+    /// - note: Assumed to be the difinition is @Published var string = "" for example.
     public subscript<Subject>(dynamicMember keyPath: ReferenceWritableKeyPath<Input, Subject>) -> Binding<Subject> {
         ObservedObject(initialValue: input).wrapperValue[dynamicMember: keyPath]
     }
 }
 
+/// Limitates access level of Output
 @dynamicMemberLookup
 public final class OutputProxy<Output: OutputType> {
 
     internal let output: Output
 
+    public init(_ output: Output) {
+        self.output = output
+    }
+
+    /// - note: Assumed to be the difinition is @Published var string = "" for example.
     public subscript<Value>(dynamicMember keyPath: ReferenceWritableKeyPath<Output, Value>) -> Value {
         output[keyPath: keyPath]
     }
@@ -73,10 +83,6 @@ public final class OutputProxy<Output: OutputType> {
 
     public subscript<P: Publisher>(dynamicMember keyPath: KeyPath<Output, P>) -> AnyPublisher<P.Output, P.Failure> {
         output[keyPath: keyPath].eraseToAnyPublisher()
-    }
-
-    public init(_ output: Output) {
-        self.output = output
     }
 }
 

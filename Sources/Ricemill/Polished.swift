@@ -8,12 +8,13 @@
 
 import Combine
 
+/// Represents Result of Resolver.polish(input:store:extra:)
 public struct Polished<Output> {
     internal let output: Output?
     internal let cancellables: [AnyCancellable]
 }
 
-extension Polished where Output: StoreType {
+extension Polished where Output: StoredOutputType {
 
     public init(cancellables: [AnyCancellable]) {
         self.output = nil
