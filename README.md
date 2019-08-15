@@ -149,9 +149,14 @@ viewModel.output.$count // This is `Published<Int>.Publisher` instance.
 - tvOS 13.0
 - watchOS 6.0
 
-# Sister library
+# Other links
 
 - [cats-oss/Unio](https://github.com/cats-oss/Unio)
+    - A sister library of Ricemill that runs on RxSwift
+- [GitHubSearchWithSwiftUI](https://github.com/marty-suzuki/GitHubSearchWithSwiftUI/blob/ricemill-sample/GitHubSearchWithSwiftUI/View/RepositoryListViewModel.swift)
+    - An example of GitHub Repository Search App with Ricemill
+
+![screenshot](https://user-images.githubusercontent.com/2082134/63103899-ef3ab300-bfb8-11e9-89d4-2c7f5f1a73da.png)
 
 # License
 
