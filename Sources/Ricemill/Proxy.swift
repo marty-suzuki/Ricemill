@@ -58,7 +58,7 @@ extension InputProxy where Input: BindableInputType {
     /// Returns `Binding<Subject>` when Input is BindableInputType
     /// - note: Assumed to be the difinition is @Published var string = "" for example.
     public subscript<Subject>(dynamicMember keyPath: ReferenceWritableKeyPath<Input, Subject>) -> Binding<Subject> {
-        ObservedObject(initialValue: input).wrapperValue[dynamicMember: keyPath]
+        ObservedObject(initialValue: input).projectedValue[dynamicMember: keyPath]
     }
 }
 

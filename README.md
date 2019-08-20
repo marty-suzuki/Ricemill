@@ -143,7 +143,7 @@ viewModel.output.$count // This is `Published<Int>.Publisher` instance.
 
 # Requirement
 
-- Xcode 11 Beta 5
+- Xcode 11 Beta 6
 - macOS 10.15
 - iOS 13.0
 - tvOS 13.0
