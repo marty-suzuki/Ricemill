@@ -86,6 +86,16 @@ public final class OutputProxy<Output: OutputType> {
     }
 }
 
+extension OutputProxy where Output: StoredOutputType {
+
+    /// Returns `Binding<Subject>` when Output is StoredOutputType
+    /// - note: Assumed to be the difinition is @Published var isHidden = false for example.
+    public subscript<Subject>(dynamicMember keyPath: ReferenceWritableKeyPath<Output, Subject>) -> Binding<Subject> {
+        ObservedObject(initialValue: output).projectedValue[dynamicMember: keyPath]
+    }
+}
+
+
 extension Publisher {
 
     public func subscribe<S: Subject>(_ proxy: SubjectProxy<S>) -> AnyCancellable where Output == S.Output, Failure == S.Failure {
