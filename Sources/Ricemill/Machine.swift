@@ -51,11 +51,11 @@ open class Machine<Resolver: ResolverType> {
     private let _store: Resolver.Store
     private let _cancellables: [AnyCancellable]
 
-    private init(input: Resolver.Input,
-                 output: Resolver.Output,
-                 store: Resolver.Store,
-                 extra: Resolver.Extra,
-                 cancellables: [AnyCancellable]) {
+    public init(input: Resolver.Input,
+                output: Resolver.Output,
+                store: Resolver.Store,
+                extra: Resolver.Extra,
+                cancellables: [AnyCancellable]) {
         self.input = InputProxy(input)
         self.output = OutputProxy(output)
         self._store = store
