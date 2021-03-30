@@ -22,6 +22,7 @@
 
 /* Begin PBXBuildFile section */
 		EDD5A21E261393AB007032DE /* MachineType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD5A21D261393AB007032DE /* MachineType.swift */; };
+		EDD5A2282613944D007032DE /* AnyResolverBasedMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD5A2272613944D007032DE /* AnyResolverBasedMachine.swift */; };
 		OBJ_26 /* Machine.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Machine.swift */; };
 		OBJ_27 /* Polished.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Polished.swift */; };
 		OBJ_28 /* Proxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* Proxy.swift */; };
@@ -52,6 +53,7 @@
 /* Begin PBXFileReference section */
 		9D4202D823050B2700079E71 /* Ricemill.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = Ricemill.playground; sourceTree = "<group>"; };
 		EDD5A21D261393AB007032DE /* MachineType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MachineType.swift; sourceTree = "<group>"; };
+		EDD5A2272613944D007032DE /* AnyResolverBasedMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyResolverBasedMachine.swift; sourceTree = "<group>"; };
 		OBJ_10 /* Polished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Polished.swift; sourceTree = "<group>"; };
 		OBJ_11 /* Proxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Proxy.swift; sourceTree = "<group>"; };
 		OBJ_12 /* Publishing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Publishing.swift; sourceTree = "<group>"; };
@@ -131,6 +133,7 @@
 		OBJ_8 /* Ricemill */ = {
 			isa = PBXGroup;
 			children = (
+				EDD5A2272613944D007032DE /* AnyResolverBasedMachine.swift */,
 				OBJ_9 /* Machine.swift */,
 				EDD5A21D261393AB007032DE /* MachineType.swift */,
 				OBJ_10 /* Polished.swift */,
@@ -225,6 +228,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				EDD5A2282613944D007032DE /* AnyResolverBasedMachine.swift in Sources */,
 				OBJ_26 /* Machine.swift in Sources */,
 				EDD5A21E261393AB007032DE /* MachineType.swift in Sources */,
 				OBJ_27 /* Polished.swift in Sources */,
