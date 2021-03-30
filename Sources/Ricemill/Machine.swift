@@ -42,7 +42,7 @@ public protocol ResolverType {
 }
 
 /// Makes possible to implement Unidirectional input / output.
-open class Machine<Resolver: ResolverType> {
+open class PrimitiveMachine<Resolver: ResolverType> {
 
     public let input: InputProxy<Resolver.Input>
     public let output: OutputProxy<Resolver.Output>
@@ -63,31 +63,23 @@ open class Machine<Resolver: ResolverType> {
         self._cancellables = cancellables
     }
 
-    public convenience init(input: Resolver.Input, store: Resolver.Store, extra: Resolver.Extra) {
+    public init(input: Resolver.Input, store: Resolver.Store, extra: Resolver.Extra) {
         let receivableInput = Publishing(input)
         let polished = Resolver.polish(input: receivableInput, store: store, extra: extra)
-        self.init(input: input,
-                  output: polished.output ?? { fatalError("Must set output when `Output` doesn't equal `Store`.") }(),
-                  store: store,
-                  extra: extra,
-                  cancellables: polished.cancellables)
+        let output = polished.output
+            ?? (store as? Resolver.Output)
+            ?? { fatalError("Unexpected type") }()
+        self.input = InputProxy(input)
+        self.output = OutputProxy(output)
+        self._store = store
+        self._extra = extra
+        self._cancellables = polished.cancellables
     }
 }
 
-extension Machine: ObservableObject where Resolver.Output == Resolver.Store {
+extension PrimitiveMachine: ObservableObject where Resolver.Output == Resolver.Store {
 
     public var objectWillChange: Resolver.Store.ObjectWillChangePublisher {
         return _store.objectWillChange
-    }
-
-    /// - note: When Resolver.Output equals Resolver.Store, this initializer is available.
-    public convenience init(input: Resolver.Input, store: Resolver.Store, extra: Resolver.Extra) {
-        let receivableInput = Publishing(input)
-        let polished = Resolver.polish(input: receivableInput, store: store, extra: extra)
-        self.init(input: input,
-                  output: store,
-                  store: store,
-                  extra: extra,
-                  cancellables: polished.cancellables)
     }
 }
