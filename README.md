@@ -84,7 +84,7 @@ enum Resolver: ResolverType {
 Here is a exmaple of implementation of `static func polish(input:store:extra:)`.
 
 ```swift
-extension ViewModel.Resolver {
+extension Resolver {
 
     static func polish(input: Publishing<Input>,
                        store: Store,
@@ -115,6 +115,54 @@ extension ViewModel.Resolver {
 
 Machine represents ViewModels of MVVM (it can also be used as Models). It has `input: InputProxy<Input>` and `output: OutputProxy<Output>`. It automatically generates `input: InputProxy<Input>` and `output: OutputProxy<Output>` from instances of [Input](#input), [Store](#store), [Extra](#extra) and [Resolver](#resolver).
 
+```swift
+final class ViewModel: Machine<ViewModel> {
+
+    final class Input: InputType {
+        let increment = PassthroughSubject<Void, Never>()
+        let decrement = PassthroughSubject<Void, Never>()
+    }
+
+    final class Store: StoredOutputType {
+        @Published var count: Int = 0
+    }
+
+    final class Output: OutputType {
+        let count: AnyPublisher<String?, Never>
+    }
+
+    struct Extra: ExtraType {}
+
+    static func polish(
+        input: Publishing<Input>,
+        store: Store,
+        extra: Extra
+    ) -> Polished<Store> {
+        var cancellables: [AnyCancellable] = []
+
+        let increment = input.increment
+            .flatMap { _ in Just(store.count) }
+            .map { $0 + 1 }
+
+        let decrement = input.decrement
+            .flatMap { _ in Just(store.count) }
+            .map { $0 - 1 }
+
+        increment.merge(with: decrement)
+            .assign(to: \.count, on: store)
+            .store(in: &cancellables)
+
+        let count = store.$count
+            .map(String.init)
+            .map(Optional.some)
+            .eraseToAnyPublisher()
+
+        return Polished(output: Output(count: count),
+                        cancellables: cancellables)
+    }
+}
+```
+
 #### SwiftUI Usage
 
 If Input implements `BindableInputType`, can access value as `Binding<Value>` from outside.
@@ -122,16 +170,40 @@ In addition, if Output equals Store and implements `StoredOutputType`, can acces
 Sample implementaion is here.
 
 ```swift
-extension ViewModel {
+final class ViewModel: Machine<ViewModel> {
     typealias Output = Store
 
     final class Input: BindableInputType {
         let increment = PassthroughSubject<Void, Never>()
-        @Published var isOn = false
+        let decrement = PassthroughSubject<Void, Never>()
     }
 
     final class Store: StoredOutputType {
         @Published var count: Int = 0
+    }
+
+    struct Extra: ExtraType {}
+
+    static func polish(
+        input: Publishing<Input>,
+        store: Store,
+        extra: Extra
+    ) -> Polished<Store> {
+        var cancellables: [AnyCancellable] = []
+
+        let increment = input.increment
+            .flatMap { _ in Just(store.count) }
+            .map { $0 + 1 }
+
+        let decrement = input.decrement
+            .flatMap { _ in Just(store.count) }
+            .map { $0 - 1 }
+
+         increment.merge(with: decrement)
+            .assign(to: \.count, on: store)
+            .store(in: &cancellables)
+
+        return Polished(cancellables: cancellables)
     }
 }
 
@@ -143,7 +215,7 @@ viewModel.output.$count // This is `Published<Int>.Publisher` instance.
 
 # Requirement
 
-- Xcode 11 Beta 6
+- Xcode 12
 - macOS 10.15
 - iOS 13.0
 - tvOS 13.0
