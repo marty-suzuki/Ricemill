@@ -50,7 +50,7 @@ final class CounterViewController: UIViewController {
         return label
     }()
 
-    private let viewModel = ViewModel.make()
+    private let viewModel = ViewModel()
 
     private var cancellables: [AnyCancellable] = []
 
@@ -142,10 +142,10 @@ final class CounterViewController: UIViewController {
     }
 }
 
-final class ViewModel: Machine<ViewModel.Resolver> {
+final class ViewModel: Machine<ViewModel> {
 
-    static func make() -> ViewModel {
-        return ViewModel(input: Input(), store: Store(), extra: Extra())
+    convenience init() {
+        self.init(input: Input(), store: Store(), extra: Extra())
     }
 
     struct Input: InputType {
@@ -153,71 +153,69 @@ final class ViewModel: Machine<ViewModel.Resolver> {
         let decrement = PassthroughSubject<Void, Never>()
         let isOn = PassthroughSubject<Bool, Never>()
     }
-
+    
     struct Output: OutputType {
         let count: AnyPublisher<String?, Never>
         let isIncrementEnabled: AnyPublisher<Bool, Never>
         let isDecrementEnabled: AnyPublisher<Bool, Never>
         let toggleText: AnyPublisher<String?, Never>
     }
-
+    
     final class Store: StoreType {
         @Published var count: Int = 0
         @Published var isToggleEnabled = false
     }
-
+    
     struct Extra: ExtraType {}
-
-    enum Resolver: ResolverType {
-
-        static func polish(input: Publishing<Input>,
-                           store: Store,
-                           extra: Extra) -> Polished<Output> {
-
-            var cancellables: [AnyCancellable] = []
-
-            do {
-                let increment = input.increment
-                    .flatMap { _ in Just(store.count) }
-                    .map { $0 + 1 }
-
-                let decrement = input.decrement
-                    .flatMap { _ in Just(store.count) }
-                    .map { $0 > 0 ? $0 - 1 : $0 }
-
-                increment.merge(with: decrement)
-                    .assign(to: \.count, on: store)
-                    .store(in: &cancellables)
-            }
-
-            input.isOn
-                .assign(to: \.isToggleEnabled, on: store)
+    
+    
+    static func polish(input: Publishing<Input>,
+                       store: Store,
+                       extra: Extra) -> Polished<Output> {
+        
+        var cancellables: [AnyCancellable] = []
+        
+        do {
+            let increment = input.increment
+                .flatMap { _ in Just(store.count) }
+                .map { $0 + 1 }
+            
+            let decrement = input.decrement
+                .flatMap { _ in Just(store.count) }
+                .map { $0 > 0 ? $0 - 1 : $0 }
+            
+            increment.merge(with: decrement)
+                .assign(to: \.count, on: store)
                 .store(in: &cancellables)
-
-            let count = store.$count
-                .map(String.init)
-                .map(Optional.some)
-                .eraseToAnyPublisher()
-
-            let incrementEnabled = store.$isToggleEnabled
-                .eraseToAnyPublisher()
-
-            let isDecrementEnabled = store.$isToggleEnabled
-                .combineLatest(store.$count)
-                .map { $0 && $1 > 0 }
-                .eraseToAnyPublisher()
-
-            let toggleText = store.$isToggleEnabled
-                .map { $0 ? "Enabled" : "Disabled" }
-                .map(Optional.some)
-                .eraseToAnyPublisher()
-
-            return Polished(output: Output(count: count,
-                                           isIncrementEnabled: incrementEnabled,
-                                           isDecrementEnabled: isDecrementEnabled,
-                                           toggleText: toggleText),
-                            cancellables: cancellables)
         }
+        
+        input.isOn
+            .assign(to: \.isToggleEnabled, on: store)
+            .store(in: &cancellables)
+        
+        let count = store.$count
+            .map(String.init)
+            .map(Optional.some)
+            .eraseToAnyPublisher()
+        
+        let incrementEnabled = store.$isToggleEnabled
+            .eraseToAnyPublisher()
+        
+        let isDecrementEnabled = store.$isToggleEnabled
+            .combineLatest(store.$count)
+            .map { $0 && $1 > 0 }
+            .eraseToAnyPublisher()
+        
+        let toggleText = store.$isToggleEnabled
+            .map { $0 ? "Enabled" : "Disabled" }
+            .map(Optional.some)
+            .eraseToAnyPublisher()
+        
+        return Polished(output: Output(count: count,
+                                       isIncrementEnabled: incrementEnabled,
+                                       isDecrementEnabled: isDecrementEnabled,
+                                       toggleText: toggleText),
+                        cancellables: cancellables)
     }
 }
 

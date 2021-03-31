@@ -16,7 +16,7 @@ import SwiftUI
 
 struct CounterView: View {
 
-    @ObservedObject var viewModel = ViewModel.make()
+    @ObservedObject var viewModel = ViewModel()
 
     var body: some View {
         VStack {
@@ -42,12 +42,14 @@ struct CounterView: View {
     }
 }
 
-final class ViewModel: Machine<ViewModel.Resolver> {
+final class ViewModel: Machine<ViewModel> {
 
-    static func make() -> ViewModel {
-        return ViewModel(input: Input(),
-                         store: Store(),
-                         extra: Extra())
+    convenience init() {
+        self.init(
+            input: Input(),
+            store: Store(),
+            extra: Extra()
+        )
     }
 
     typealias Output = Store
@@ -64,48 +66,45 @@ final class ViewModel: Machine<ViewModel.Resolver> {
         @Published var isDecrementEnabled = false
         @Published var toggleText = ""
     }
-
+    
     struct Extra: ExtraType {}
-
-    enum Resolver: ResolverType {
-
-        static func polish(input: Publishing<Input>,
-                           store: Store,
-                           extra: Extra) -> Polished<Output> {
-
-            var cancellables: [AnyCancellable] = []
-
-            do {
-                let increment = input.increment
-                    .flatMap { _ in Just(store.count) }
-                    .map { $0 + 1 }
-
-                let decrement = input.decrement
-                    .flatMap { _ in Just(store.count) }
-                    .map { $0 > 0 ? $0 - 1 : $0 }
-
-                increment.merge(with: decrement)
-                    .assign(to: \.count, on: store)
-                    .store(in: &cancellables)
-            }
-
-            input.$isOn
-                .assign(to: \.isIncrementEnabled, on: store)
+    
+    static func polish(input: Publishing<Input>,
+                       store: Store,
+                       extra: Extra) -> Polished<Output> {
+        
+        var cancellables: [AnyCancellable] = []
+        
+        do {
+            let increment = input.increment
+                .flatMap { _ in Just(store.count) }
+                .map { $0 + 1 }
+            
+            let decrement = input.decrement
+                .flatMap { _ in Just(store.count) }
+                .map { $0 > 0 ? $0 - 1 : $0 }
+            
+            increment.merge(with: decrement)
+                .assign(to: \.count, on: store)
                 .store(in: &cancellables)
-
-            input.$isOn
-                .combineLatest(store.$count)
-                .map { $0 && $1 > 0 }
-                .assign(to: \.isDecrementEnabled, on: store)
-                .store(in: &cancellables)
-
-            input.$isOn
-                .map { $0 ? "Enabled" : "Disabled" }
-                .assign(to: \.toggleText, on: store)
-                .store(in: &cancellables)
-
-            return Polished(cancellables: cancellables)
         }
+        
+        input.$isOn
+            .assign(to: \.isIncrementEnabled, on: store)
+            .store(in: &cancellables)
+        
+        input.$isOn
+            .combineLatest(store.$count)
+            .map { $0 && $1 > 0 }
+            .assign(to: \.isDecrementEnabled, on: store)
+            .store(in: &cancellables)
+        
+        input.$isOn
+            .map { $0 ? "Enabled" : "Disabled" }
+            .assign(to: \.toggleText, on: store)
+            .store(in: &cancellables)
+        
+        return Polished(cancellables: cancellables)
     }
 }
 
